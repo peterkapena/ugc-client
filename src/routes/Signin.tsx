@@ -7,26 +7,13 @@ import { useForm, SubmitHandler } from "react-hook-form";
 import { useEffect, useState } from "react";
 import { z } from "zod";
 import { useNavigate } from "react-router-dom";
-import { IS_DEVELOPER, ROUTES } from "../common";
+import { IS_DEVELOPER, ROUTES, STR_TOKEN } from "../common";
 import TextField from "../components/TextField";
 import Password from "../components/Password";
 import { SubmitLoadingButton } from "../components/SubmitLoadingButton";
 import { Notice } from "../components/Notice";
-
-const FormSchema = z.object({
-  password: z
-    .string({})
-    .nonempty("this is required")
-    .min(8, "Not shorter than 8")
-    .max(100, "This must be less than 100 characters long"),
-  email_or_username: z
-    .string({})
-    .nonempty("this is required")
-    //.email("Invalid email")
-    .max(100, "This must be less than 100 characters long"),
-});
-
-type FormSchemaType = z.infer<typeof FormSchema>;
+import { gql, useMutation } from "@apollo/client";
+import { SigninInput } from "../__generated__/graphql";
 
 export default function Page() {
   const [showSubmitButton, setShowSubmitButton] = useState(true);
@@ -42,36 +29,36 @@ export default function Page() {
   } = useForm<FormSchemaType>({
     resolver: zodResolver(FormSchema),
     defaultValues: {
-      email_or_username: IS_DEVELOPER ? process.env.PETER_KAPENA_EMAIL : "",
-      password: IS_DEVELOPER ? process.env.PETER_KAPENA_PASSWORD : "",
+      email_or_username: IS_DEVELOPER ? "peterkapenapeter@gmail.com" : "",
+      password: IS_DEVELOPER ? "1234567P" : "",
     },
   });
-  // async function fetch() {
-  //   await initializeUser();
-  // }
-  // useEffect(() => {
-  //   fetch();
-  // }, []);
+
+  const [signin] = useMutation(SIGNIN);
 
   const processForm: SubmitHandler<FormSchemaType> = async (data) => {
     try {
       setIsLoading(true);
 
-      // const result = await signIn("credentials", {
-      //   email_or_username: data.email_or_username,
-      //   password: data.password,
-      //   redirect: false,
-      //   callbackUrl: "/",
-      // });
-      // if (result?.error) {
-      //   setMessages(["Incorrect username or password"]);
-      // } else {
-      //   window.location.href = "/";
-      // }
+      const input: SigninInput = {
+        password: data.password,
+        email: data.email_or_username,
+      };
 
-      setShowSubmitButton(false);
-      // setIsSuccess(Boolean(!result?.error));
+      const rtn = (await signin({ variables: { input } })).data?.signin;
+
+      if (IS_DEVELOPER) console.log(rtn);
+
+      if (rtn?.messages.length > 0) {
+        setMessages(["sign in failed"]);
+      } else if (rtn?.token) {
+        sessionStorage.setItem(STR_TOKEN, rtn.token);
+        await new Promise((resolve) => setTimeout(resolve, 1000));
+        window.location.href = ROUTES.HOME;
+      }
+      setIsSuccess(Boolean(rtn?.messages.length === 0));
     } catch (error) {
+      setMessages(["sign in failed"]);
       console.error(error);
     } finally {
       setIsLoading(false);
@@ -133,14 +120,14 @@ export default function Page() {
             Do not have an account? Click here to create one.
           </Button>
         </Box>
-        {showSubmitButton && (
+        {messages.length === 0 && showSubmitButton && (
           <SubmitLoadingButton
             isLoading={isLoading}
             title="Sign in"
           ></SubmitLoadingButton>
         )}
 
-        {!showSubmitButton && messages.length > 0 && (
+        {messages.length > 0 && (
           <Notice
             isSuccess={isSuccess}
             onClose={() => {
@@ -154,3 +141,28 @@ export default function Page() {
     </Sheet>
   );
 }
+
+const SIGNIN = gql(`
+mutation Signin($input: SigninInput!) {
+  signin(input: $input) {
+    email
+    messages
+    token
+  }
+}
+`);
+
+const FormSchema = z.object({
+  password: z
+    .string({})
+    .nonempty("this is required")
+    .min(8, "Not shorter than 8")
+    .max(100, "This must be less than 100 characters long"),
+  email_or_username: z
+    .string({})
+    .nonempty("this is required")
+    //.email("Invalid email")
+    .max(100, "This must be less than 100 characters long"),
+});
+
+type FormSchemaType = z.infer<typeof FormSchema>;

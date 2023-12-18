@@ -30,12 +30,10 @@ export default function Page() {
   } = useForm<FormSchemaType>({
     resolver: zodResolver(FormSchema),
     defaultValues: {
-      email: IS_DEVELOPER ? process.env.PETER_KAPENA_EMAIL : "",
-      password: IS_DEVELOPER ? process.env.PETER_KAPENA_PASSWORD : "",
-      username: IS_DEVELOPER
-        ? process.env.PETER_KAPENA_EMAIL?.split("@")[0]
-        : "",
-      confirm_password: IS_DEVELOPER ? process.env.PETER_KAPENA_PASSWORD : "",
+      email: IS_DEVELOPER ? "peterkapenapeter@gmail.com" : "",
+      password: IS_DEVELOPER ? "1234567P" : "",
+      username: IS_DEVELOPER ? "peterkapenapeter@gmail.com" : "",
+      confirm_password: IS_DEVELOPER ? "1234567P" : "",
     },
   });
 

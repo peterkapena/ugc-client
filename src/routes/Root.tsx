@@ -16,14 +16,6 @@ mutation VerifyToken($input: String!) {
 `);
 
 export default function Root() {
-  return (
-    <div>
-      <Outlet />
-    </div>
-  );
-}
-
-export function Home() {
   const [loaded, setLoaded] = useState(false);
   const token = sessionStorage.getItem(STR_TOKEN);
 
@@ -78,11 +70,19 @@ export function Home() {
     verifyTokenAsync();
   }, [dispatch, token, verifyToken]);
 
-  if (loaded) return <Root />;
+  if (loaded) return <Home />;
   else
     return (
       <>
         <p>Loading...</p>
       </>
     );
+}
+
+export function Home() {
+  return (
+    <div>
+      <Outlet />
+    </div>
+  );
 }

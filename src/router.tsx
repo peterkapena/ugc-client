@@ -4,6 +4,7 @@ import Signin from "./routes/Signin";
 import Signup from "./routes/Signup";
 import Root, { Home } from "./routes/Root";
 import ErrorPage from "./error-page";
+import Welcome from "./routes/Welcome";
 
 export const router = createBrowserRouter([
   {
@@ -13,16 +14,16 @@ export const router = createBrowserRouter([
     children: [
       {
         path: ROUTES.HOME,
-        element: <Home />,
-      },
-      {
-        path: ROUTES.SIGNIN,
-        element: <Signin />,
-      },
-      {
-        path: ROUTES.SIGNUP,
-        element: <Signup />,
+        element: <Welcome />,
       },
     ],
+  },
+  {
+    path: ROUTES.SIGNIN,
+    element: <Signin />,
+  },
+  {
+    path: ROUTES.SIGNUP,
+    element: <Signup />,
   },
 ]);
