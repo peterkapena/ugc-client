@@ -4,7 +4,7 @@ import Button from "@mui/joy/Button";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Sheet, Typography } from "@mui/joy";
 import { useForm, SubmitHandler } from "react-hook-form";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { z } from "zod";
 import { useNavigate } from "react-router-dom";
 import { IS_DEVELOPER, ROUTES, STR_TOKEN } from "../common";

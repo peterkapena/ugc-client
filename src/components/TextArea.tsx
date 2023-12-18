@@ -1,6 +1,6 @@
 "use client";
 import { FormHelperText, Textarea } from "@mui/joy";
-import React, { TextareaHTMLAttributes } from "react";
+import { TextareaHTMLAttributes } from "react";
 import FormControl from "@mui/joy/FormControl";
 import FormLabel from "@mui/joy/FormLabel";
 import { FieldError } from "react-hook-form";

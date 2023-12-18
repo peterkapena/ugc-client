@@ -14,6 +14,10 @@ import { SubmitLoadingButton } from "../components/SubmitLoadingButton";
 import UserName from "../components/UserName";
 import Email from "../components/Email";
 import Password from "../components/Password";
+import { gql, useMutation } from "@apollo/client";
+import { SignupInput } from "../__generated__/graphql";
+
+const AUTO_SIGNIN_TIMEOUT_REDIRECT = 5;
 
 export default function Page() {
   const [showSubmitButton, setShowSubmitButton] = useState(true);
@@ -21,6 +25,7 @@ export default function Page() {
   const navigate = useNavigate();
   const [isLoading, setIsLoading] = useState(false);
   const [isSuccess, setIsSuccess] = useState<boolean>();
+  const [signup] = useMutation(SIGNUP);
 
   const {
     register,
@@ -38,28 +43,38 @@ export default function Page() {
   });
 
   const processForm: SubmitHandler<FormSchemaType> = async (data) => {
-    // try {
-    //   setIsLoading(true);
-    //   const ok = await signUp(data);
-    //   console.log(ok);
-    //   setShowSubmitButton(false);
-    //   if (ok) {
-    //     setMessages([
-    //       ...messages,
-    //       "Sign up was successful. You will be redirected to sign in or or close this to sign in or login now.",
-    //     ]);
-    //     setTimeout(() => (window.location.href = "/"), 3000);
-    //   } else {
-    //     setMessages([
-    //       ...messages,
-    //       "Sign up failed. Try using different credentials. Otherwise, please contact support.",
-    //     ]);
-    //   }
-    //   setIsSuccess(Boolean(ok));
-    // } catch (error) {
-    // } finally {
-    //   setIsLoading(false);
-    // }
+    try {
+      setIsLoading(true);
+      const input: SignupInput = {
+        password: data.password,
+        email: data.email,
+      };
+      const rtn = (await signup({ variables: { input } })).data.signup;
+      if (IS_DEVELOPER) console.log(rtn);
+
+      setShowSubmitButton(false);
+      if (rtn) {
+        setMessages([
+          ...messages,
+          "Sign up was successful. You will be redirected to sign-in in " +
+            AUTO_SIGNIN_TIMEOUT_REDIRECT +
+            " seconds or signin now.",
+        ]);
+        setTimeout(
+          () => (window.location.href = "/"),
+          AUTO_SIGNIN_TIMEOUT_REDIRECT * 1000
+        );
+      } else {
+        setMessages([
+          ...messages,
+          "Sign up failed. Try using different credentials. Otherwise, please contact support.",
+        ]);
+      }
+      setIsSuccess(Boolean(rtn));
+    } catch (error) {
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (
@@ -141,7 +156,7 @@ export default function Page() {
               setShowSubmitButton(true);
               setMessages([]);
               reset();
-              navigate(ROUTES.SIGNIN);
+              isSuccess && navigate(ROUTES.SIGNIN);
             }}
             messages={messages}
           />
@@ -150,6 +165,12 @@ export default function Page() {
     </Sheet>
   );
 }
+
+const SIGNUP = gql(`
+mutation Signup($input: SignupInput!) {
+  signup(input: $input)
+}
+`);
 
 export const FormSchema = z
   .object({

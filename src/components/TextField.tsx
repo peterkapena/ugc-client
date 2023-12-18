@@ -1,5 +1,5 @@
 import { FormHelperText } from "@mui/joy";
-import React, { InputHTMLAttributes } from "react";
+import { InputHTMLAttributes } from "react";
 import FormControl from "@mui/joy/FormControl";
 import FormLabel from "@mui/joy/FormLabel";
 import Input from "@mui/joy/Input";
