@@ -1,8 +1,4 @@
-// export const DEV_APOLLO_URI = "http://localhost:4000/";
-// export const PROD_APOLLO_URI = "";
 export const IS_DEVELOPER = process.env.NODE_ENV === "development";
-// export const ApolloUri = IS_DEVELOPER ? DEV_APOLLO_URI : PROD_APOLLO_URI;
-// export const STR_TOKEN = "token";
 export const STR_USER = "user";
 export const STR_TOKEN = "token";
 export const STR_THEME_MODE = "THEME_MODE";
